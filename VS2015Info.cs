@@ -5,18 +5,18 @@ using System.Text;
 
 namespace ProjectConverter
 {
-public class VS2013Info: VSProjectVersionInfo, IVSIinfo, IVSVersionInfo
+public class VS2015Info: VSProjectVersionInfo, IVSIinfo, IVSVersionInfo
 {
         /// <summary>
-        /// The Tools Version for Visual Studio 2013 is always 12.0
+        /// The Tools Version for Visual Studio 2015 is always 12.0
         /// </summary>
-        const string TOOLS_VERSION = "12.0";
+        const string TOOLS_VERSION = "14.0";
 
         public override string OldToolsVersion
         {
             get
             {
-                return Settings.Default.VS2013_OldToolsVersion;
+                return Settings.Default.VS2015_OldToolsVersion;
             }//get
             set
             {
@@ -39,7 +39,7 @@ public class VS2013Info: VSProjectVersionInfo, IVSIinfo, IVSVersionInfo
 
         /// <summary>
         /// Gets and sets the available Target Framework Versions
-        /// for Visual Studio 2013
+        /// for Visual Studio 2015
         /// </summary>
         /// <remarks>Visual Studio 2013 supports .Net 2.0, .Net 3.0,
         /// .Net 3.5,.Net 4.0 and .Net 4.5 out of the box</remarks>
@@ -47,7 +47,7 @@ public class VS2013Info: VSProjectVersionInfo, IVSIinfo, IVSVersionInfo
         {
             get
             {
-                return Settings.Default.VS2013_TargetFramework;
+                return Settings.Default.VS2015_TargetFramework;
             }//get
             set
             {
@@ -71,7 +71,7 @@ public class VS2013Info: VSProjectVersionInfo, IVSIinfo, IVSVersionInfo
         {
             get
             {
-                return "v4.5";
+                return "v4.5.2";
             }
         }//property
 

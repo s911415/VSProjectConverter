@@ -7,8 +7,8 @@ using System.Text;
 
 namespace ProjectConverter
 {
-    public class VSSolutionInfo
-    {
+public class VSSolutionInfo
+{
         private double m_vsVersion;
         private const string VBProjExt = ".vbproj";
         private const string CSharpProjExt = ".csproj";
@@ -104,7 +104,7 @@ namespace ProjectConverter
         }//property: ProjectList
 
         /// <summary>
-        /// Gets the Solution file "format version".  
+        /// Gets the Solution file "format version".
         /// Also verifies we have a valid solution file
         /// </summary>
         /// <param name="FilePath">string containing the file path to the Solution File</param>
@@ -114,14 +114,11 @@ namespace ProjectConverter
             string buf = null;
             int linecount = 0;
             double ans = 0.0;
-
             //Remove the Read-Only Flag from the Solution file if it exists
             FileOps.RemoveReadOnlyFlag(FilePath);
-
             using (FileStream fs = new FileStream(FilePath, FileMode.Open))
             {
                 StreamReader sr = new StreamReader(fs);
-
 
                 while (!sr.EndOfStream)
                 {
@@ -135,6 +132,7 @@ namespace ProjectConverter
                     }
 
                     linecount += 1;
+
                     // A valid solution should have a header at the 1st or 2nd line
                     if (linecount > 2)
                     {
@@ -178,14 +176,11 @@ namespace ProjectConverter
             string buf = null;
             int linecount = 0;
             double ans = 0.0;
-            
             //Remove the Read-Only Flag from the Solution file if it exists
             FileOps.RemoveReadOnlyFlag(FilePath);
-
             ParseVSSolutionFile();
             ans = this.FormatVersion;
 
-            
             if (ans == 0)
             {
                 throw new ApplicationException("This doesn't appear to be a valid solution file");
@@ -213,15 +208,13 @@ namespace ProjectConverter
             BinaryReader br = null;
             string buf = null;
             byte[] bom = null;
-
-            // First we read the solution file and build a list of 
+            // First we read the solution file and build a list of
             // project files that we find inside.  We need both a binary
             // reader and stream reader.
             using (fs = new FileStream(this.SolnFilePath, FileMode.Open))
             {
                 sr = new StreamReader(fs);
                 br = new BinaryReader(fs);
-
                 // let's read Unicode Byte Order Mark (with CRLF)
                 bom = br.ReadBytes(5);
 
@@ -233,7 +226,6 @@ namespace ProjectConverter
                     bom[2] = 0XBF;
                     bom[3] = 0XD;
                     bom[4] = 0XA;
-
                     // rewind the streamreaders
                     fs.Seek(0, SeekOrigin.Begin);
                 }
@@ -245,12 +237,10 @@ namespace ProjectConverter
                     // no need for any fancy parsing routines
                     if (buf.StartsWith("Microsoft Visual Studio Solution File, Format Version"))
                     {
-
                         //int intFormatIdx = buf.IndexOf("Format");
                         //this.SolnFileFormatHeader = buf.Substring(intFormatIdx);
                         this.SolnFileFormatHeader = buf;
                         this.FormatVersion = double.Parse(buf.Substring(VSSolutionFormat.Format_Header.Length), System.Globalization.CultureInfo.GetCultureInfo("en-US"));
-                        
                         continue;
                     }//if
 
@@ -261,7 +251,6 @@ namespace ProjectConverter
                         this.SolnFileVersionHeader = buf;
                         continue;
                     }//if
-                    
 
                     // parse the project files
                     if (buf.StartsWith("Project("))
@@ -270,24 +259,19 @@ namespace ProjectConverter
                         string[] ProjParts = null;
                         //Create a new instance of the class to store the Project File information
                         VSProjectFileInfo vsProjFileInfo = new VSProjectFileInfo();
-
                         //Split the entire project string using the equal separator
                         ProjLine = buf.Split('=');
-
                         //Split the second part of the project string using the comma separator
                         ProjParts = ProjLine[1].Split(',');
-
                         //TODO: Is there ever a scenario where there are more or less than 3 parts??
                         vsProjFileInfo.ProjectID = VSUtils.GetProjectPart(ProjLine[0]);
                         vsProjFileInfo.Name = VSUtils.GetProjectPart(ProjParts[0]);
                         vsProjFileInfo.ProjectRelativePath = VSUtils.GetProjectPart(ProjParts[1]);
                         vsProjFileInfo.Guid = VSUtils.GetProjectPart(ProjParts[2]);
-
                         vsProjFileInfo.ProjectFullPath = Path.Combine(this.SolnDirectory, vsProjFileInfo.ProjectRelativePath);
                         vsProjFileInfo.ProjectDirectory = Path.GetDirectoryName(vsProjFileInfo.ProjectFullPath);
                         vsProjFileInfo.ProjectExtension = Path.GetExtension(vsProjFileInfo.ProjectFullPath);
                         vsProjFileInfo.ProjectFileName = string.Concat(vsProjFileInfo.Name, vsProjFileInfo.ProjectExtension);
-
                         //Add the project file info to the collection
                         m_projList.Add(vsProjFileInfo);
 
@@ -299,6 +283,7 @@ namespace ProjectConverter
                         }//if
                     }
                 }
+
                 fs.Close();
             }//using
         }
@@ -309,12 +294,12 @@ namespace ProjectConverter
         /// </summary>
         /// <param name="objVSSolnInfo" type="ProjectConverter.VSSolutionInfo">
         ///     <para>
-        ///         
+        ///
         ///     </para>
         /// </param>
         /// <param name="ConvertTo" type="ProjectConverter.Versions">
         ///     <para>
-        ///         
+        ///
         ///     </para>
         /// </param>
         /// <returns>
@@ -323,9 +308,7 @@ namespace ProjectConverter
         public static VSSolutionInfo ConvertVSSolution(VSSolutionInfo objVSSolnInfo, Versions ConvertTo)
         {
             VSSolutionInfo vsSolnInfo = new VSSolutionInfo(objVSSolnInfo.SolnFilePath);
-
             VSSolutionFormat vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory((int) ConvertTo);
-            
 
             switch (ConvertTo)
             {
@@ -333,23 +316,39 @@ namespace ProjectConverter
                     vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
                     vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
                     break;
+
                 case Versions.Version9:
                     vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory(9);
                     vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
                     vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
                     break;
+
                 case Versions.Version10:
                     vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory(10);
                     vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
                     vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
                     break;
+
                 case Versions.Version11:
                     vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory(11);
                     vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
                     vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
                     break;
+
                 case Versions.Version12:
                     vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory(11);
+                    vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
+                    vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
+                    break;
+
+                case Versions.Version14:
+                    vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory(14);
+                    vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
+                    vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
+                    break;
+
+                case Versions.Version15:
+                    vsSolnFormat = VSSolutionFormat.VSSolutionFormatFactory(15);
                     vsSolnInfo.SolnFileVersionHeader = vsSolnFormat.SolnHeader;
                     vsSolnInfo.SolnFileFormatHeader = vsSolnFormat.SolnFormat;
                     break;
@@ -365,10 +364,8 @@ namespace ProjectConverter
         {
             FileStream fs = null;
             List<string> arrLines = new List<string>();
-
             //Remove Read-Only Flag from Solution
             FileOps.RemoveReadOnlyFlag(this.SolnFilePath);
-
             // OK now it's time to save the converted Solution file
             using (fs = new FileStream(this.SolnFilePath, FileMode.Open))
             {
@@ -390,13 +387,11 @@ namespace ProjectConverter
                     {
                         arrLines.Add(strLine);
                     }//else
-
                 }//while
 
                 //Close the file stream
                 fs.Close();
             }//using
-
             using (StreamWriter sw = new StreamWriter(this.SolnFilePath, false))
             {
                 foreach (var arrLine in arrLines)
@@ -406,18 +401,20 @@ namespace ProjectConverter
             }//using
         }//method: ConvertVSSolution
 
-       
-    }
 
-    /// <summary>
-    /// Stores the Solution Format information
-    /// </summary>
-    internal class VSSolutionFormat
-    {
+}
+
+/// <summary>
+/// Stores the Solution Format information
+/// </summary>
+internal class VSSolutionFormat
+{
         private const string VS2005SolnHeader = "# Visual Studio 2005";
         private const string VS2008SolnHeader = "# Visual Studio 2008";
         private const string VS2010SolnHeader = "# Visual Studio 2010";
         private const string VS2012SolnHeader = "# Visual Studio 11";
+        private const string VS2015SolnHeader = "# Visual Studio 14";
+        private const string VS2017SolnHeader = "# Visual Studio 15";
         public const string Format_Header = "Microsoft Visual Studio Solution File, Format Version";
 
 
@@ -428,7 +425,10 @@ namespace ProjectConverter
 
         public static VSSolutionFormat VSSolutionFormatFactory(int SolnNumber)
         {
-            VSSolutionFormat vsSolnFormat = new VSSolutionFormat() {SolnID = (double)SolnNumber};
+            VSSolutionFormat vsSolnFormat = new VSSolutionFormat()
+            {
+                SolnID = (double)SolnNumber
+            };
             vsSolnFormat.SolnFormat = string.Format("{0} {1}", Format_Header, vsSolnFormat.SolnID);
 
             switch (SolnNumber)
@@ -436,17 +436,29 @@ namespace ProjectConverter
                 case 9:
                     vsSolnFormat.SolnHeader = VS2005SolnHeader;
                     break;
+
                 case 10:
                     vsSolnFormat.SolnHeader = VS2008SolnHeader;
                     break;
+
                 case 11:
                     vsSolnFormat.SolnHeader = VS2010SolnHeader;
                     break;
+
                 case 12:
                     vsSolnFormat.SolnHeader = VS2012SolnHeader;
                     break;
+
+                case 14:
+                    vsSolnFormat.SolnHeader = VS2015SolnHeader;
+                    break;
+
+                case 15:
+                    vsSolnFormat.SolnHeader = VS2017SolnHeader;
+                    break;
             }//switch
+
             return vsSolnFormat;
         }//method: CreateVSSolutionFormat()
-    }
+}
 }

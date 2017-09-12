@@ -5,10 +5,10 @@ using System.Text;
 
 namespace ProjectConverter
 {
-    public class VSProjectCreator
-    {
+public class VSProjectCreator
+{
         /// <summary>
-        /// Factory Method to determine the appropriate version 
+        /// Factory Method to determine the appropriate version
         /// of the Visual Studio Project
         /// </summary>
         /// <param name="ConvertTo">enumeration containing the version of Visual Studio
@@ -20,16 +20,25 @@ namespace ProjectConverter
             {
                 case Versions.Version9:
                     return new VS2008Info();
+
                 case Versions.Version10:
                     return new VS2010Info();
+
                 case Versions.Version11:
                     return new VS2012Info();
+
                 case Versions.Version12:
                     return new VS2013Info();
-                default:
-                    return new VS2010Info();
-            }//switch
 
+                case Versions.Version14:
+                    return new VS2015Info();
+
+                case Versions.Version15:
+                    return new VS2017Info();
+
+                default:
+                    return new VS2017Info();
+            }//switch
         }//method: VSProjectFactory()
-    }
+}
 }

@@ -14,13 +14,13 @@ using System.Collections.Specialized;
 
 namespace ProjectConverter
 {
-	public partial class fmMain
-	{
+public partial class fmMain
+{
 
-		internal fmMain()
-		{
-			InitializeComponent();
-		}
+        internal fmMain()
+        {
+            InitializeComponent();
+        }
 
         private Versions ConvertTo;
         private VSSolutionInfo m_vsSolutionInfo = null;
@@ -57,7 +57,7 @@ namespace ProjectConverter
             {
                 m_vsSolutionInfo = value;
             }//set
-        }//property: SolutionInfo 
+        }//property: SolutionInfo
         #endregion
 
         #region Methods
@@ -79,20 +79,15 @@ namespace ProjectConverter
         /// of the selected Visual Studio project/solution file</param>
         private void LoadChoices(double version)
         {
-
             Dictionary<double, string> dictVSVersion = new Dictionary<double, string>();
             Dictionary<double, string> dictVSCurrentVersion = new Dictionary<double, string>();
             string vsCurrentVersion = string.Empty;
-
             //Clear out the current contents of the listbox
             lbVersion.Items.Clear();
-
-            //Initialize the possible existing versions of Visual Studio 
+            //Initialize the possible existing versions of Visual Studio
             dictVSCurrentVersion = VSUtils.PopulateVSExistingVersion();
-
-            //Initialize the possible supported versions of Visual Studio 
+            //Initialize the possible supported versions of Visual Studio
             dictVSVersion = VSUtils.PopulateVSSupportedVersion();
-
 
             //Check if the existing element already exists in the collection
             if (dictVSCurrentVersion.ContainsKey(version))
@@ -112,7 +107,7 @@ namespace ProjectConverter
 
             //Set the label text to display the currently selected version Visual Studio project/solution file
             lbMessage.Text = vsCurrentVersion;
-        } 
+        }
         #endregion
 
         #region Event Handlers
@@ -125,12 +120,11 @@ namespace ProjectConverter
         {
             double v = 0;
             int ending = 0;
-
             // chop off any previous ending of the message
             ending = lbMessage.Text.IndexOf("solution");
             lbMessage.Text = lbMessage.Text.Substring(0, ending + 8);
-
             v = double.Parse(lbVersion.SelectedItem.ToString().Substring(21, 3), System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+
             //INSTANT C# NOTE: The following VB 'Select Case' included either a non-ordinal switch expression or non-ordinal, range-type, or non-constant 'Case' expressions and was converted to C# 'if-else' logic:
             //			Select Case v
             //ORIGINAL LINE: Case 8.0
@@ -156,6 +150,16 @@ namespace ProjectConverter
                 ConvertTo = Versions.Version11;
                 lbMessage.Text += " to VS2012 (v11.0)";
             }
+            else if (v == 14.0)
+            {
+                ConvertTo = Versions.Version14;
+                lbMessage.Text += " to VS2015 (v14.0)";
+            }
+            else if (v == 15.0)
+            {
+                ConvertTo = Versions.Version15;
+                lbMessage.Text += " to VS2017 (v15.0)";
+            }
             //ORIGINAL LINE: Case Else
             else
             {
@@ -172,7 +176,6 @@ namespace ProjectConverter
         /// <param name="e"></param>
         private void bnConvert_Click(object sender, System.EventArgs e)
         {
-
             double ExistingVersion = 0;
             int convertedProjects = 0;
 
@@ -215,11 +218,8 @@ namespace ProjectConverter
             }
 
             VSSolutionInfo vsSolnInfo = new VSSolutionInfo(tbSolutionFile.Text);
-
-
             //Read the properties of the Visual Studio Solution file
             VSSolutionInfo convertedSolnInfo = VSSolutionInfo.ConvertVSSolution(vsSolnInfo, ConvertTo);
-
 
             //Convert all of the projects in the solution
             foreach (var projFile in convertedSolnInfo.SupportedProjectConvList)
@@ -242,21 +242,16 @@ namespace ProjectConverter
 
             //Set the value to the total converted projects
             convertedProjects = convertedSolnInfo.ConvertedProjectCount;
-
             //Convert the Visual Studio Solution file
             convertedSolnInfo.ConvertVSSolution();
-
             // Tell 'em what we did
             string strMessage = string.Format("Converted 1 solution and {0} project file{1} out of a total of {2} project{3} in the solution", convertedProjects,
-                ((convertedProjects > 1) ? "s" : "").ToString(),
-                convertedSolnInfo.TotalProjectCount,
-                ((convertedSolnInfo.TotalProjectCount > 1) ? "s" : "").ToString());
+                                              ((convertedProjects > 1) ? "s" : "").ToString(),
+                                              convertedSolnInfo.TotalProjectCount,
+                                              ((convertedSolnInfo.TotalProjectCount > 1) ? "s" : "").ToString());
             MessageBox.Show(strMessage, "Sucess", MessageBoxButtons.OK, MessageBoxIcon.Information);
-           
-
             // reload the version (in case you want to hit the convert button a 2nd time)
             LoadChoices(this.SolutionFormatVersion);
-
 
             // if started from a shell extension, then close when we're done
             if (Environment.GetCommandLineArgs().Length == 2)
@@ -305,6 +300,7 @@ namespace ProjectConverter
         {
             ofdMain.AddExtension = true;
             ofdMain.Filter = "Microsoft Visual Studio Solution File (*.sln)|*.sln|All files (*.*)|*.*";
+
             if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 tbSolutionFile.Text = ofdMain.FileName;
@@ -351,10 +347,8 @@ namespace ProjectConverter
         private void cmdUpgradeVSSoln_Click(object sender, EventArgs e)
         {
             string strStdOutput = string.Empty;
-
             //Remove Read Only attributes from entire solution directory and subdirectories
             FileOps.RemoveReadOnlyAttributes(txtVSSolnPath.Text, out strStdOutput);
-
             //If the TFS Checkout checkbox is checked
             //if (chkTFSCheckout.Checked)
             //{
@@ -363,7 +357,6 @@ namespace ProjectConverter
             //    //Launch the TF.exe process to perform the file checkout
             //    TFSOps.LaunchTFExeProcess(txtTFExePath.Text, strTFExeArgs);
             //}//if
-
             string strErrOutput = UpgradeVSProjects.DevEnvUpgrade(txtDevEnvPath.Text, txtVSSolnPath.Text, out strStdOutput);
 
             if (string.IsNullOrEmpty(strErrOutput))
@@ -382,7 +375,7 @@ namespace ProjectConverter
         //    {
         //        txtTFExePath.Text = ofdTFExe.FileName;
         //    }//if
-        //} 
+        //}
         #endregion
 
         private void cmdBrowseMVCExe_Click(object sender, EventArgs e)
@@ -399,9 +392,9 @@ namespace ProjectConverter
             Process.Start(txtMVCConverterExe.Text);
         }
 
-    
 
-    
-	}
+
+
+}
 
 }
